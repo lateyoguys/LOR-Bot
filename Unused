@@ -1,0 +1,44 @@
+@bot.hybrid_command(name="slots", description="Slots command")
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def slots(ctx: commands.Context):
+    SLOT_CONFIG = {
+        "🍎" : (50, 10),
+        "🍌" : (25, 100),
+        "🍓" : (15, 500),
+        "🍉" : (8, 5000),
+        "🔔" : (2, 1000000)
+    }
+
+    symbols = list(SLOT_CONFIG.keys())
+    weights = [SLOT_CONFIG[sym][0] for sym in symbols]
+
+    result = [random.choices(symbols, weights=weights)[0] for _ in range(3)]
+    if ctx.author.id == 355010452796866560:
+        result[1] = result[0]
+        result[2] = result[0]
+
+    slot = [random.choice(symbols) for _ in range(3)]
+
+    msg = await ctx.send(' | '.join(slot))
+
+    for tick in range (1, 4):
+        await asyncio.sleep(0.5)
+
+        slot = [random.choice(symbols) for _ in range(3)]
+        if tick >=1:
+            slot[0] = result[0]
+        if tick >=2:
+            slot[1] = result[1]
+        if tick >=3:
+            slot[2] = result[2]
+
+        await msg.edit(content=f"{slot[0]} | {slot[1]} | {slot[2]}")
+
+    await asyncio.sleep(0.5)
+
+    if slot[0] == slot[1] == slot[2]:
+        winning_symbol = slot[0]
+        await ctx.reply(f"You win {SLOT_CONFIG[winning_symbol][1]} coins!")
+    else:
+        await ctx.reply("You lose!")
